@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Demo Login</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #f4f5f7; margin: 0; }
+    .card { max-width: 360px; margin: 80px auto; background: #fff; padding: 32px;
+            border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+    h1 { font-size: 22px; margin: 0 0 20px; }
+    label { display: block; font-size: 14px; margin-bottom: 6px; }
+    input { width: 100%; box-sizing: border-box; padding: 10px; font-size: 15px;
+            border: 1px solid #c4c7cc; border-radius: 6px; }
+    input[aria-invalid="true"] { border-color: #c62828; }
+    button { width: 100%; margin-top: 16px; padding: 11px; font-size: 15px; border: 0;
+             border-radius: 6px; background: #1a56db; color: #fff; cursor: pointer; }
+    button:disabled { background: #8aa4e8; cursor: wait; }
+    .link { background: none; color: #1a56db; padding: 0; width: auto; margin-top: 12px; }
+    .error { color: #c62828; font-size: 13px; margin-top: 8px; }
+    .muted { color: #555; font-size: 14px; margin-bottom: 16px; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <!-- Practice page for Playwright. Valid login: qa@example.com / Password123 -->
+  <main class="card">
+
+    <!-- Step 1: email -->
+    <section data-testid="login-email-step">
+      <h1>Sign in</h1>
+      <label for="email">Email</label>
+      <input id="email" type="text" data-testid="login-email-input" autocomplete="off">
+      <p class="error" data-testid="login-email-error" hidden></p>
+      <button type="button" data-testid="login-next-button">Next</button>
+    </section>
+
+    <!-- Step 2: password -->
+    <section data-testid="login-password-step" hidden>
+      <h1>Enter password</h1>
+      <p class="muted">Signing in as <strong data-testid="login-email-display"></strong></p>
+      <label for="password">Password</label>
+      <input id="password" type="password" data-testid="login-password-input">
+      <p class="error" data-testid="login-password-error" hidden></p>
+      <button type="button" data-testid="login-submit-button">Sign in</button>
+      <button type="button" class="link" data-testid="login-back-button">Back</button>
+    </section>
+
+    <!-- After login -->
+    <section data-testid="dashboard" hidden>
+      <h1 data-testid="dashboard-title">Dashboard</h1>
+      <p class="muted">Welcome, <strong data-testid="dashboard-user"></strong></p>
+      <button type="button" data-testid="logout-button">Log out</button>
+    </section>
+
+  </main>
+
+  <script>
+    const VALID_EMAIL = 'qa@example.com';
+    const VALID_PASSWORD = 'Password123';
+
+    const $ = (id) => document.querySelector(`[data-testid="${id}"]`);
+    const emailStep = $('login-email-step');
+    const passwordStep = $('login-password-step');
+    const dashboard = $('dashboard');
+    const emailInput = $('login-email-input');
+    const passwordInput = $('login-password-input');
+    const emailError = $('login-email-error');
+    const passwordError = $('login-password-error');
+    const submitButton = $('login-submit-button');
+
+    function show(section) {
+      for (const s of [emailStep, passwordStep, dashboard]) s.hidden = s !== section;
+      location.hash = section === dashboard ? '#/dashboard' : section === passwordStep ? '#/password' : '';
+    }
+
+    function setError(input, errorEl, message) {
+      errorEl.textContent = message;
+      errorEl.hidden = !message;
+      input.setAttribute('aria-invalid', message ? 'true' : 'false');
+    }
+
+    $('login-next-button').addEventListener('click', () => {
+      const email = emailInput.value.trim();
+      if (!email) return setError(emailInput, emailError, 'Email is required');
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return setError(emailInput, emailError, 'Enter a valid email address');
+      }
+      setError(emailInput, emailError, '');
+      $('login-email-display').textContent = email;
+      show(passwordStep);
+      passwordInput.focus();
+    });
+
+    submitButton.addEventListener('click', () => {
+      const password = passwordInput.value;
+      if (!password) return setError(passwordInput, passwordError, 'Password is required');
+      setError(passwordInput, passwordError, '');
+
+      // Pretend to call a server: wait a moment before answering.
+      submitButton.disabled = true;
+      submitButton.textContent = 'Signing in...';
+      setTimeout(() => {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Sign in';
+        if (emailInput.value.trim() === VALID_EMAIL && password === VALID_PASSWORD) {
+          $('dashboard-user').textContent = VALID_EMAIL;
+          show(dashboard);
+        } else {
+          setError(passwordInput, passwordError, 'Incorrect email or password');
+        }
+      }, 800);
+    });
+
+    $('login-back-button').addEventListener('click', () => {
+      passwordInput.value = '';
+      setError(passwordInput, passwordError, '');
+      show(emailStep);
+    });
+
+    $('logout-button').addEventListener('click', () => {
+      emailInput.value = '';
+      passwordInput.value = '';
+      show(emailStep);
+    });
+  </script>
+</body>
+</html>
