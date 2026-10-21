@@ -1,0 +1,21 @@
+{
+  "name": "git-practice",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yuggohil55/git-practice.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/yuggohil55/git-practice/issues"
+  },
+  "homepage": "https://github.com/yuggohil55/git-practice#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^26.6.5"
+  }
+}
