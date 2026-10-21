@@ -18,7 +18,7 @@ test.describe('Login', { tag: ['@login'] }, () => {
 
       // Expected: Products page opens
       await expect(page).toHaveURL(/inventory\.html/);
-      await expect(page.getByTestId('title')).toHaveText('Products List2');
+      await expect(page.getByTestId('title')).toHaveText('Products');
     },
   );
 
